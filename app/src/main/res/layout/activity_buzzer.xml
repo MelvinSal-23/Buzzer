@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".BuzzerActivity"
+        android:background="#1E32ED"
+        >
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg"
+            android:id="@+id/buzz"
+            >
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintVertical_bias="0.3"
+                android:id="@+id/v1"
+                />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.7"
+                android:id="@+id/v2"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Timer : 60"
+                android:textColor="@color/white"
+                android:fontFamily="@font/alfa_slab_one"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toTopOf="@id/v1"
+                app:layout_constraintLeft_toLeftOf="@id/v1"
+                android:layout_margin="20dp"
+                android:id="@+id/timertxt"
+                />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toBottomOf="@+id/v1"
+                app:layout_constraintBottom_toTopOf="@id/v2"
+                android:layout_margin="20dp"
+                android:id="@+id/buzzerbtn"
+                app:cardBackgroundColor="@color/buzzerred"
+                >
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Buzz Now"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/alfa_slab_one"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        android:textSize="24sp"
+                        />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.airbnb.lottie.LottieAnimationView
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:lottie_rawRes="@raw/nointernet"
+            app:lottie_autoPlay="true"
+            android:id="@+id/mlottiez1" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

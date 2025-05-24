@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1063486704620",
+    "firebase_url": "https://kotlinnbuzzer-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "kotlinnbuzzer",
+    "storage_bucket": "kotlinnbuzzer.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063486704620:android:c588047af00defe7a74ec9",
+        "android_client_info": {
+          "package_name": "com.projects.kotlinnbuzzer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1063486704620-k8gt2csljf84969m2ubjpra7mt0bjemu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.projects.kotlinnbuzzer",
+            "certificate_hash": "6c39f181a8c97e2ccc14e114ab9288434b95a081"
+          }
+        },
+        {
+          "client_id": "1063486704620-eujoo0f7ro9la3in4648fop10a426gd6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEh2imNUPdydmRsd0mtHteQjiYKiP_DH4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1063486704620-eujoo0f7ro9la3in4648fop10a426gd6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

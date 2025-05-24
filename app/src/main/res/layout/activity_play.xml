@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".PlayActivity" android:background="#1E32ED"
+        >
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg"
+            android:id="@+id/play"
+            >
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Room Code : 9023"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/alfa_slab_one"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:layout_margin="20dp"
+                    android:id="@+id/roomcode1"
+                    />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="End Quiz"
+                    app:layout_constraintTop_toTopOf="@id/roomcode1"
+                    app:layout_constraintRight_toRightOf="parent"
+                    android:layout_marginRight="20dp"
+                    app:layout_constraintBottom_toBottomOf="@id/roomcode1"
+                    android:id="@+id/endbtn"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Leaderboard"
+                    app:layout_constraintTop_toBottomOf="@id/roomcode1"
+                    app:layout_constraintLeft_toLeftOf="@id/roomcode1"
+                    android:textSize="24sp"
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/alfa_slab_one"
+                    android:layout_marginTop="20dp"
+                    android:autoSizeTextType="uniform"
+                    android:maxLines="1"
+                    android:id="@+id/waitintxt1"
+                    />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    tools:listitem="@layout/play_recitem"
+                    app:layout_constraintTop_toBottomOf="@+id/waitintxt1"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    android:layout_margin="20dp"
+                    android:id="@+id/playrecview"
+                    app:layout_constraintBottom_toTopOf="@+id/resetbtn"
+                    />
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Reset"
+                    android:id="@+id/resetbtn"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/startbtn"
+                    android:layout_margin="20dp"
+                    />
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Start"
+                    app:layout_constraintLeft_toRightOf="@+id/resetbtn"
+                    android:id="@+id/startbtn"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    android:layout_margin="20dp"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.airbnb.lottie.LottieAnimationView
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:lottie_rawRes="@raw/nointernet"
+            app:lottie_autoPlay="true"
+            android:id="@+id/mlottiez2" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.projects.kotlinnbuzzer.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_createRoomFragment"
+            app:destination="@id/createRoomFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_joinFragment"
+            app:destination="@id/joinFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createRoomFragment"
+        android:name="com.projects.kotlinnbuzzer.fragments.CreateRoomFragment"
+        android:label="fragment_create_room"
+        tools:layout="@layout/fragment_create_room" >
+        <action
+            android:id="@+id/action_createRoomFragment_to_roomFragment"
+            app:destination="@id/roomFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/joinFragment"
+        android:name="com.projects.kotlinnbuzzer.fragments.JoinFragment"
+        android:label="fragment_join"
+        tools:layout="@layout/fragment_join" />
+    <fragment
+        android:id="@+id/roomFragment"
+        android:name="com.projects.kotlinnbuzzer.fragments.RoomFragment"
+        android:label="fragment_room"
+        tools:layout="@layout/fragment_room" />
+</navigation>
