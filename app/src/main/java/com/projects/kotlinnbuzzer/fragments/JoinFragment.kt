@@ -18,103 +18,153 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.projects.kotlinnbuzzer.BuzzerActivity
 import com.projects.kotlinnbuzzer.databinding.FragmentJoinBinding
+import com.projects.kotlinnbuzzer.utils.RoomDataManager
 
 class JoinFragment : Fragment() {
-
-    lateinit var binding:FragmentJoinBinding
-    lateinit var name:String
-    lateinit var code:String
-    lateinit var dbref: DatabaseReference
-    lateinit var valuev:ValueEventListener
-    var x=1
-    var android_id=""
+    lateinit var binding: FragmentJoinBinding
+    lateinit var name: String
+    lateinit var code: String
+    private var dbref: DatabaseReference? = null
+    private var valuev: ValueEventListener? = null
+    lateinit var roomDataManager: RoomDataManager
+    var x = 1
+    var android_id = ""
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentJoinBinding.inflate(layoutInflater)
+        roomDataManager = RoomDataManager(requireContext())
+        dbref = FirebaseDatabase.getInstance().getReference("AvailableRooms")
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        name=""
-        code=""
-        android_id = Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID)
-
-        dbref =  FirebaseDatabase.getInstance().getReference("AvailableRooms")
-        valuev = dbref.addValueEventListener(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-
-            }
-        })
+        name = ""
+        code = ""
+        android_id = Settings.Secure.getString(
+            requireContext().getContentResolver(), Settings.Secure.ANDROID_ID
+        )        // Check if user was in a room
+        if (roomDataManager.isInRoom()) {
+            name = roomDataManager.getUserName()
+            code = roomDataManager.getRoomCode()
+            binding.nameEditText.setText(name)
+            binding.RoomCodeEditText.setText(code)
+            // Auto-join the room
+            checkAndJoinRoom()
+        }
         binding.joinbtn.setOnClickListener {
             name = binding.nameEditText.text.toString()
             code = binding.RoomCodeEditText.text.toString()
             hideKeybord()
-            if(name.isNotEmpty() and code.isNotEmpty()){
-               valuev= dbref
-                    .addValueEventListener(object :ValueEventListener{
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot!=null){
-                                for (codes in snapshot.children){
-                                    if(codes.key == code){
-                                        val i = Intent(requireActivity(), BuzzerActivity::class.java)
-                                        i.putExtra("code",code)
-                                        i.putExtra("name",name)
-                                        startActivity(i)
-
-                                        x=0
-                                    }
-                                }
-                                if (x == 1){
-                                    Snackbar.make(view,"No Matching Room Available",Snackbar.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            TODO("Not yet implemented")
-                        }
-
-                    })
-            }
-            else{
-                Snackbar.make(view,"Please fill all details",Snackbar.LENGTH_SHORT).show()
-
+            if (name.isNotEmpty() and code.isNotEmpty()) {
+                checkAndJoinRoom()
+            } else {
+                Snackbar.make(binding.root, "Fill all details", Snackbar.LENGTH_SHORT).show()
             }
         }
+    }
 
+    private fun checkAndJoinRoom() {
+        if (dbref == null) {
+            dbref = FirebaseDatabase.getInstance().getReference("AvailableRooms")
+        }
+
+        // Remove any existing listener
+        valuev?.let { dbref?.removeEventListener(it) }
+
+        // Create and add new listener
+        valuev = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.hasChild(code)) {
+                    // Check if we're already in the room
+                    val roomRef = snapshot.child(code)
+                    val android_id = Settings.Secure.getString(
+                        requireContext().getContentResolver(), Settings.Secure.ANDROID_ID
+                    )
+
+                    // Save room data locally before joining
+                    roomDataManager.saveRoomData(code, name)
+
+                    // Start buzzer activity
+                    val intent = Intent(requireActivity(), BuzzerActivity::class.java)
+                    intent.putExtra("code", code)
+                    intent.putExtra("name", name)
+                    startActivity(intent)                    // Remove the listener since we're leaving this fragment
+                    valuev?.let { dbref?.removeEventListener(it) }
+                    valuev = null
+                } else {
+                    Snackbar.make(binding.root, "Room not found", Snackbar.LENGTH_SHORT).show()
+                    roomDataManager.clearRoomData()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Snackbar.make(binding.root, "Error: ${error.message}", Snackbar.LENGTH_SHORT).show()
+                // Don't clear room data on error, in case it's just a temporary network issue
+            }
+        }.also { listener ->
+            valuev = listener
+            dbref?.addValueEventListener(listener)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (valuev != null && dbref != null) {
-            dbref.removeEventListener(valuev)
+        try {
+            // Save current input data before destruction
+            val currentName = binding.nameEditText.text.toString()
+            val currentCode = binding.RoomCodeEditText.text.toString()
+            if (currentName.isNotEmpty() && currentCode.isNotEmpty()) {
+                roomDataManager.saveRoomData(currentCode, currentName)
+            }            // Safely remove listener
+            valuev?.let { dbref?.removeEventListener(it) }
+            valuev = null
+        } catch (e: Exception) {
+            // Handle any potential exceptions during cleanup
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (valuev != null && dbref != null) {
-            dbref.removeEventListener(valuev)
+        try {
+            // Save current input data
+            val currentName = binding.nameEditText.text.toString()
+            val currentCode = binding.RoomCodeEditText.text.toString()
+            if (currentName.isNotEmpty() && currentCode.isNotEmpty()) {
+                roomDataManager.saveRoomData(currentCode, currentName)
+            }
+            // Safely remove listener
+            valuev?.let { dbref?.removeEventListener(it) }
+            valuev = null
+        } catch (e: Exception) {
+            // Handle any potential exceptions during cleanup
         }
     }
 
     override fun onStop() {
         super.onStop()
-        if (valuev != null && dbref != null) {
-            dbref.removeEventListener(valuev)
+        try {
+            // Save current input data
+            val currentName = binding.nameEditText.text.toString()
+            val currentCode = binding.RoomCodeEditText.text.toString()
+            if (currentName.isNotEmpty() && currentCode.isNotEmpty()) {
+                roomDataManager.saveRoomData(currentCode, currentName)
+            }
+            // Safely remove listener
+            valuev?.let { dbref?.removeEventListener(it) }
+            valuev = null
+        } catch (e: Exception) {
+            // Handle any potential exceptions during cleanup
         }
     }
+
     fun hideKeybord() {
         val view = requireActivity().currentFocus
         if (view != null) {
-            val hideKey = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val hideKey =
+                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             hideKey.hideSoftInputFromWindow(view.windowToken, 0)
         } else {
             requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
