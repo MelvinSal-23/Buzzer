@@ -50,6 +50,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation ("com.google.firebase:firebase-database-ktx")
     implementation("com.google.android.gms:play-services-auth:21.3.0")
+    implementation("com.google.code.gson:gson:2.13.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

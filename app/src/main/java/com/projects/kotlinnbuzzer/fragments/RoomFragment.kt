@@ -23,12 +23,12 @@ import java.util.Calendar
 
 
 class RoomFragment : Fragment() {
+    private lateinit var binding: FragmentRoomBinding
+    private lateinit var code: String
+    private lateinit var database: FirebaseDatabase
+    private lateinit var datetime: String
+    private lateinit var madapter: RoomAdapter
 
-    lateinit var binding: FragmentRoomBinding
-    lateinit var code: String
-    lateinit var database: FirebaseDatabase
-    lateinit var datetime: String
-    lateinit var madapter: RoomAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -52,7 +52,28 @@ class RoomFragment : Fragment() {
         database.getReference("UserProfiles").child(FirebaseAuth.getInstance().currentUser!!.uid)
             .child("Rooms").child(code).child("createdOn").setValue(datetime)
         database.getReference("AvailableRooms").child(code).child("createdAt").setValue(datetime)
+        binding.playbtn.setOnClickListener {
+            if (madapter.getSize() == 0) {
+                Snackbar.make(requireView(), "Nobody to play.", Snackbar.LENGTH_SHORT).show()
+            } else {
+                // Set initial play state to true
+                database.getReference("AvailableRooms")
+                    .child(code)
+                    .child("isHostPlaying")
+                    .setValue(true)
+                    .addOnSuccessListener {
+                        // Start PlayActivity
+                        val intent = Intent(requireActivity(), PlayActivity::class.java)
+                        intent.putExtra("code", code)
+                        startActivity(intent)
+                    }
+            }
+        }
 
+        setupFirebaseListener()
+    }
+
+    private fun setupFirebaseListener() {
         binding.mprogress1.visibility = View.VISIBLE
         FirebaseDatabase.getInstance().getReference("AvailableRooms")
             .child(code)
@@ -88,17 +109,6 @@ class RoomFragment : Fragment() {
                 }
 
             })
-        binding.playbtn.setOnClickListener {
-            if (madapter.getSize() == 0) {
-                Snackbar.make(requireView(), "Nobody to play.", Snackbar.LENGTH_SHORT).show()
-            } else {
-
-                val i = Intent(requireActivity(), PlayActivity::class.java)
-                i.putExtra("code", code)
-                startActivity(i)
-
-            }
-        }
     }
 
     fun getDateTime(): String {

@@ -13,203 +13,155 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.projects.kotlinnbuzzer.databinding.ActivityBuzzerBinding
+import com.projects.kotlinnbuzzer.utils.GameStateManager
 
 
 class BuzzerActivity : AppCompatActivity() {
-    lateinit var binding: ActivityBuzzerBinding
-    lateinit var code: String
-    lateinit var name: String
-    lateinit var database: FirebaseDatabase
-    lateinit var android_id: String
-    lateinit var dbref: DatabaseReference
-    lateinit var valuev: ValueEventListener
-    var timer: CountDownTimer? = null
+    private lateinit var binding: ActivityBuzzerBinding
+    private lateinit var code: String
+    private lateinit var name: String
+    private lateinit var database: FirebaseDatabase
+    private lateinit var android_id: String
+    private lateinit var dbref: DatabaseReference
+    private var valuev: ValueEventListener? = null
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var gameStateManager: GameStateManager
+    private var isHostPlaying = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_buzzer)
         binding.mlottiez1.visibility = View.GONE
-        var bundle = intent.extras
-        if (bundle != null) {
-            code = bundle.getString("code", "")
-            name = bundle.getString("name", "")
+
+        // Initialize game state manager
+        gameStateManager = GameStateManager(this)
+
+        // Restore state from persistent storage or intent
+        code = gameStateManager.getRoomCode().ifEmpty {
+            intent.extras?.getString("code", "") ?: ""
         }
+        name = gameStateManager.getPlayerName().ifEmpty {
+            intent.extras?.getString("name", "") ?: ""
+        }
+        android_id = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+
+        // Initialize Firebase
         database = FirebaseDatabase.getInstance()
-        android_id =
-            Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID)
+        setupFirebaseListeners()
+        
+        // Setup buzz button
+        binding.buzzerbtn.setOnClickListener {
+            clicked()
+            handleBuzz()
+        }
+    }
 
-        database.getReference(
-            "AvailableRooms"
-        )
+    private fun setupFirebaseListeners() {
+        // Listen for host play state changes
+        database.getReference("AvailableRooms")
             .child(code)
-            .child(android_id)
-            .child("name")
-            .setValue(name)
-            .addOnSuccessListener {
-                database.getReference(
-                    "AvailableRooms"
-                )
-                    .child(code)
-                    .child(android_id)
-                    .child("buzzat")
-                    .setValue("0")
-            }
-
-        dbref = database.getReference(
-            "AvailableRooms"
-        )
-            .child(code)
-            .child(android_id)
-        valuev = dbref.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.childrenCount == 0L) {
-                    Toast.makeText(this@BuzzerActivity, "You have been removed", Toast.LENGTH_SHORT)
-                        .show()
-                    dbref.removeEventListener(valuev)
-                    finish()
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-            }
-
-        })
-        database.getReference("AvailableRooms").child(code).child("isStarted")
+            .child("isHostPlaying")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot != null) {
-                        if (snapshot.value == true) {
-                            disabled()
-//                        Toast.makeText(this@BuzzerActivity,"Button is Enabled",Toast.LENGTH_SHORT).show()
-                            binding.buzzerbtn.setCardBackgroundColor(Color.RED)
-                            binding.buzzerbtn.isClickable = true
-
-                            timer = object : CountDownTimer(60000, 50) {
-                                override fun onTick(millisUntilFinished: Long) {
-                                    binding.timertxt.setText("Timer: Started")
-                                    binding.buzzerbtn.setOnClickListener {
-
-                                        clicked()
-                                        database.getReference(
-                                            "AvailableRooms"
-                                        )
-                                            .child(code)
-                                            .child(android_id)
-                                            .child("buzzat")
-                                            .setValue("${millisUntilFinished}")
-                                            .addOnSuccessListener {
-                                                cancel()
-                                                binding.timertxt.setText("Timer: Sent")
-                                                binding.buzzerbtn.setCardBackgroundColor(Color.GRAY)
-                                                binding.buzzerbtn.isClickable = false
-                                            }
-                                            .addOnFailureListener {
-                                                cancel()
-                                                Toast.makeText(
-                                                    this@BuzzerActivity,
-                                                    "Error: ${it.message}",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                    }
-
-                                }
-
-                                override fun onFinish() {
-
-                                    database.getReference(
-                                        "AvailableRooms"
-                                    )
-                                        .child(code)
-                                        .child(android_id)
-                                        .child("buzzat")
-                                        .setValue("${60000L / 1000L}")
-                                        .addOnSuccessListener {
-                                            cancel()
-                                            binding.timertxt.setText("Timer: Sent")
-                                            binding.buzzerbtn.setCardBackgroundColor(Color.GRAY)
-                                            disabled()
-                                            binding.buzzerbtn.isClickable = false
-                                        }
-                                        .addOnFailureListener {
-                                            Toast.makeText(
-                                                this@BuzzerActivity,
-                                                "Error: ${it.message}",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                            binding.buzzerbtn.setCardBackgroundColor(Color.GRAY)
-                                            binding.buzzerbtn.isClickable = false
-                                        }
-                                }
-                            }.start()
-                        } else {
-                            disabled()
-                            binding.timertxt.setText("Timer: Disabled")
-                            binding.buzzerbtn.setCardBackgroundColor(Color.GRAY)
-                            binding.buzzerbtn.isClickable = false
-                            timer?.cancel()
-                        }
-                    } else {
-                        disabled()
-                        binding.timertxt.setText("Timer: Disabled")
-
-                        binding.buzzerbtn.setCardBackgroundColor(Color.GRAY)
-                        binding.buzzerbtn.isClickable = false
-                        timer?.cancel()
-
-                    }
+                    isHostPlaying = snapshot.getValue(Boolean::class.java) ?: false
+                    updateBuzzerState()
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(
-                        this@BuzzerActivity,
-                        "Some error Occurred: ${error.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    // Handle error
                 }
-
             })
 
+        // Reference to player's data
+        dbref = database.getReference("AvailableRooms")
+            .child(code)
+            .child(android_id)
 
+        // Listen for player data changes
+        valuev = dbref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!snapshot.exists()) {
+                    Toast.makeText(this@BuzzerActivity, "You have been removed", Toast.LENGTH_SHORT).show()
+                    gameStateManager.clearGameState()
+                    finish()
+                    return
+                }
+
+                // Update local state
+                val score = snapshot.child("score").value?.toString()?.toIntOrNull() ?: 0
+                gameStateManager.savePlayerScore(android_id, score)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error
+            }
+        })
+
+        // Ensure player data exists and restore from local state
+        val scores = gameStateManager.getPlayerScores()
+        val playerState = scores[android_id]
+        
+        dbref.updateChildren(mapOf(
+            "name" to name,
+            "buzzat" to "0",
+            "score" to (playerState?.score ?: 0)
+        ))
+    }
+
+    private fun handleBuzz() {
+        if (isHostPlaying) {
+            val currentTime = System.currentTimeMillis()
+            dbref.child("buzzat")
+                .setValue(currentTime.toString())
+                .addOnFailureListener {
+                    Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
+    private fun updateBuzzerState() {
+        if (isHostPlaying) {
+            binding.buzzerbtn.setCardBackgroundColor(Color.RED)
+            binding.buzzerbtn.isClickable = true
+        } else {
+            binding.buzzerbtn.setCardBackgroundColor(Color.GRAY)
+            binding.buzzerbtn.isClickable = false
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Save current state
+        gameStateManager.saveGameState(
+            code,
+            true,
+            isHostPlaying,
+            gameStateManager.getPlayerScores(),
+            "0",
+            name,
+            android_id
+        )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Restore state and update UI
+        code = gameStateManager.getRoomCode()
+        name = gameStateManager.getPlayerName()
+        updateBuzzerState()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        database.getReference(
-            "AvailableRooms"
-        )
-            .child(code)
-            .child(android_id)
-            .removeValue()
-        binding.buzzerbtn.setCardBackgroundColor(Color.GRAY)
-        binding.buzzerbtn.isClickable = false
-        timer?.cancel()
-
-
-    }
-
-    override fun onStop() {
-        super.onStop()
-        database.getReference(
-            "AvailableRooms"
-        )
-            .child(code)
-            .child(android_id)
-            .removeValue()
-        binding.buzzerbtn.setCardBackgroundColor(Color.GRAY)
-        binding.buzzerbtn.isClickable = false
-        timer?.cancel()
-
-    }
-
-    private fun disabled() {
-        mediaPlayer = MediaPlayer.create(applicationContext, R.raw.stop)
-        mediaPlayer.start()
+        // Clean up
+        valuev?.let { dbref.removeEventListener(it) }
+        if (!isFinishing && ::mediaPlayer.isInitialized) {
+            mediaPlayer.release()
+        }
     }
 
     private fun clicked() {
         mediaPlayer = MediaPlayer.create(applicationContext, R.raw.click)
         mediaPlayer.start()
     }
-
 }
