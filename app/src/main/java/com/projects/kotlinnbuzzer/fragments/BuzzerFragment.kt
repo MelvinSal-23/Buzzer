@@ -18,135 +18,129 @@ import com.projects.kotlinnbuzzer.utils.RoomDataManager
 
 class BuzzerFragment : Fragment() {
 
-    lateinit var binding: FragmentBuzzerBinding
-    lateinit var code: String
-    lateinit var name: String
-    lateinit var database: FirebaseDatabase
-    lateinit var android_id: String
-    lateinit var roomDataManager: RoomDataManager
-    private var isUserRemoved = false
+   lateinit var binding: FragmentBuzzerBinding
+   lateinit var code: String
+   lateinit var name: String
+   lateinit var database: FirebaseDatabase
+   lateinit var android_id: String
+   lateinit var roomDataManager: RoomDataManager
+   private var isUserRemoved = false
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        binding = FragmentBuzzerBinding.inflate(layoutInflater)
-        roomDataManager = RoomDataManager(requireContext())
-        return binding.root
-    }
+   override fun onCreateView(
+      inflater: LayoutInflater, container: ViewGroup?,
+      savedInstanceState: Bundle?,
+   ): View? {
+      binding = FragmentBuzzerBinding.inflate(layoutInflater)
+      roomDataManager = RoomDataManager(requireContext())
+      return binding.root
+   }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        var bundle = arguments
-        if (bundle != null) {
-            code = bundle.getString("code", "")
-            name = bundle.getString("name", "")
-        }
-        database = FirebaseDatabase.getInstance()
-        android_id = Settings.Secure.getString(
-            getContext()?.getContentResolver(),
-            Settings.Secure.ANDROID_ID
-        )
+   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+      super.onViewCreated(view, savedInstanceState)
+      var bundle = arguments
+      if (bundle != null) {
+         code = bundle.getString("code", "")
+         name = bundle.getString("name", "")
+      }
+      database = FirebaseDatabase.getInstance()
+      android_id = Settings.Secure.getString(
+         getContext()?.getContentResolver(),
+         Settings.Secure.ANDROID_ID
+      )
 
-        setupRoomPresence()
-    }
+      setupRoomPresence()
+   }
 
-    private fun setupRoomPresence() {
-        val roomRef = database.getReference("AvailableRooms").child(code).child(android_id)
+   private fun setupRoomPresence() {
+      val roomRef = database.getReference("AvailableRooms").child(code).child(android_id)
 
-        // Set up user data in room
-        roomRef.child("name").setValue(name)
+      roomRef.child("name").setValue(name)
 
-        // Set up presence system
-        val userStatusRef = roomRef.child("online")
-        val connectedRef = database.getReference(".info/connected")
+      val userStatusRef = roomRef.child("online")
+      val connectedRef = database.getReference(".info/connected")
 
-        connectedRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val connected = snapshot.getValue(Boolean::class.java) ?: false
-                if (connected) {
-                    // When user disconnects, remove them from room
-                    userStatusRef.onDisconnect().setValue(false)
-                    // When user connects/reconnects, set them as online
-                    userStatusRef.setValue(true)
-                }
+      connectedRef.addValueEventListener(object : ValueEventListener {
+         override fun onDataChange(snapshot: DataSnapshot) {
+            val connected = snapshot.getValue(Boolean::class.java) ?: false
+            if (connected) {
+               userStatusRef.onDisconnect().setValue(false)
+               userStatusRef.setValue(true)
             }
+         }
 
-            override fun onCancelled(error: DatabaseError) {
+         override fun onCancelled(error: DatabaseError) {
+         }
+
+      })
+
+      roomRef.addValueEventListener(object : ValueEventListener {
+         override fun onDataChange(snapshot: DataSnapshot) {
+            if (!snapshot.exists() && !isUserRemoved) {
+               roomDataManager.clearRoomData()
+               findNavController().popBackStack()
+               Toast.makeText(
+                  requireActivity(),
+                  "You have been removed from the room",
+                  Toast.LENGTH_SHORT
+               ).show()
             }
+         }
 
-        })
+         override fun onCancelled(error: DatabaseError) {
+         }
 
-        // Monitor if user is removed from room
-        roomRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (!snapshot.exists() && !isUserRemoved) {
-                    roomDataManager.clearRoomData()
-                    findNavController().popBackStack()
-                    Toast.makeText(
-                        requireActivity(),
-                        "You have been removed from the room",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
+      })
+   }
 
-            override fun onCancelled(error: DatabaseError) {
-            }
+   override fun onDestroyView() {
+      super.onDestroyView()
+      if (!isUserRemoved) {
+         roomDataManager.saveRoomData(code, name)
+      }
+   }
 
-        })
-    }
+   override fun onDestroy() {
+      super.onDestroy()
+      isUserRemoved = true
+      database.getReference(
+         "AvailableRooms"
+      )
+         .child(code)
+         .child(android_id)
+         .removeValue()
+   }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        // Don't clear room data on normal view destruction
-        if (!isUserRemoved) {
-            roomDataManager.saveRoomData(code, name)
-        }
-    }
+   override fun onStop() {
+      super.onStop()
+      isUserRemoved = true
+      database.getReference(
+         "AvailableRooms"
+      )
+         .child(code)
+         .child(android_id)
+         .removeValue()
+   }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        isUserRemoved = true
-        database.getReference(
-            "AvailableRooms"
-        )
-            .child(code)
-            .child(android_id)
-            .removeValue()
-    }
+   override fun onDetach() {
+      super.onDetach()
+      isUserRemoved = true
+      database.getReference(
+         "AvailableRooms"
+      )
+         .child(code)
+         .child(android_id)
+         .removeValue()
 
-    override fun onStop() {
-        super.onStop()
-        isUserRemoved = true
-        database.getReference(
-            "AvailableRooms"
-        )
-            .child(code)
-            .child(android_id)
-            .removeValue()
-    }
+   }
 
-    override fun onDetach() {
-        super.onDetach()
-        isUserRemoved = true
-        database.getReference(
-            "AvailableRooms"
-        )
-            .child(code)
-            .child(android_id)
-            .removeValue()
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        database.getReference(
-            "AvailableRooms"
-        )
-            .child(code)
-            .child(android_id)
-            .child("name")
-            .setValue(name)
-    }
+   override fun onResume() {
+      super.onResume()
+      database.getReference(
+         "AvailableRooms"
+      )
+         .child(code)
+         .child(android_id)
+         .child("name")
+         .setValue(name)
+   }
 }

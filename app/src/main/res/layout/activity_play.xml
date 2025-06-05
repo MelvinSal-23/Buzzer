@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
    xmlns:app="http://schemas.android.com/apk/res-auto"
-   xmlns:tools="http://schemas.android.com/tools">   <data>
-   </data>
+   xmlns:tools="http://schemas.android.com/tools">
+
+   <data></data>
 
    <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
@@ -41,12 +42,12 @@
                android:layout_height="wrap_content"
                android:text="Reset" />
 
-            <Button
-               android:id="@+id/endbtn"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_marginHorizontal="8dp"
-               android:text="End" />
+            <!--            <Button-->
+            <!--               android:id="@+id/endbtn"-->
+            <!--               android:layout_width="wrap_content"-->
+            <!--               android:layout_height="wrap_content"-->
+            <!--               android:layout_marginHorizontal="8dp"-->
+            <!--               android:text="End" />-->
          </LinearLayout>
 
          <androidx.recyclerview.widget.RecyclerView

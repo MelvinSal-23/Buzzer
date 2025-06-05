@@ -1,79 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+   android:layout_width="match_parent"
+   android:layout_height="wrap_content"
+   android:orientation="vertical"
+   android:padding="16dp">
 
-    <TextView
-        android:id="@+id/player_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
+   <TextView
+      android:id="@+id/player_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:textSize="18sp"
+      android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/score_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="numberSigned"
-        android:hint="Enter score"
-        android:layout_marginBottom="16dp"/>
+   <EditText
+      android:id="@+id/score_input"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:hint="Enter score"
+      android:inputType="numberSigned" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+   <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_plus_5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+5"
-            android:layout_margin="4dp"/>
+      <Button
+         android:id="@+id/btn_plus_5"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_margin="4dp"
+         android:text="+5" />
 
-        <Button
-            android:id="@+id/btn_plus_10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+10"
-            android:layout_margin="4dp"/>
+      <Button
+         android:id="@+id/btn_plus_10"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_margin="4dp"
+         android:text="+10" />
 
-        <Button
-            android:id="@+id/btn_plus_15"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+15"
-            android:layout_margin="4dp"/>
-    </LinearLayout>
+      <Button
+         android:id="@+id/btn_plus_15"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_margin="4dp"
+         android:text="+15" />
+   </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+   <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_minus_5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-5"
-            android:layout_margin="4dp"/>
+      <Button
+         android:id="@+id/btn_minus_5"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_margin="4dp"
+         android:text="-5" />
 
-        <Button
-            android:id="@+id/btn_minus_10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-10"
-            android:layout_margin="4dp"/>
+      <Button
+         android:id="@+id/btn_minus_10"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_margin="4dp"
+         android:text="-10" />
 
-        <Button
-            android:id="@+id/btn_minus_15"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-15"
-            android:layout_margin="4dp"/>
-    </LinearLayout>
+      <Button
+         android:id="@+id/btn_minus_15"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_margin="4dp"
+         android:text="-15" />
+   </LinearLayout>
 </LinearLayout>

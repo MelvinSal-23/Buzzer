@@ -20,6 +20,19 @@
          android:layout_height="match_parent"
          android:background="@drawable/bg">
 
+         <TextView
+            android:id="@+id/buzzScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/alfa_slab_one"
+            android:text="Score: 0"
+            android:textColor="@color/white"
+            android:textSize="50sp"
+            app:layout_constraintBottom_toTopOf="@+id/buzzerbtn"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
          <com.google.android.material.card.MaterialCardView
             android:id="@+id/buzzerbtn"
             android:layout_width="280dp"
@@ -29,14 +42,16 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">            <TextView
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
+               android:layout_gravity="center"
                android:fontFamily="@font/alfa_slab_one"
                android:text="BUZZ"
                android:textColor="@color/white"
-               android:textSize="40sp"
-               android:layout_gravity="center" />
+               android:textSize="40sp" />
 
          </com.google.android.material.card.MaterialCardView>
 
